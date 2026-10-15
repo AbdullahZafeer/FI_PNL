@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=https://sap.github.io/ui5-tooling/schema/ui5.yaml.json
+
+specVersion: "4.0"
+metadata:
+  name: zfipnl
+type: application
+builder:
+  resources:
+    excludes:
+      - /test/**
+      - /localService/**
+  customTasks:
+    - name: deploy-to-abap
+      afterTask: generateCachebusterInfo
+      configuration:
+        target:
+          destination: dev
+          url: https://my436167.s4hana.cloud.sap
+          client: '100'
+          authenticationType: reentranceTicket # SAML support for vscode
+        app:
+          name: ZFI_PNL_REPORT
+          package: ZFI
+          transport: 'FO8K900926' # previous transport released - add a new FI transport before deploying
+        exclude:
+          - /test/
+          - /localService/

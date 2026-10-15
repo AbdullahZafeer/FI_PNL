@@ -1,0 +1,181 @@
+<mvc:View
+	controllerName="zfipnl.controller.Main"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	xmlns:t="sap.ui.table"
+	displayBlock="true"
+	height="100%">
+
+	<Page id="page" showHeader="true" title="{i18n>appTitle}" enableScrolling="false" class="sapUiNoContentPadding">
+
+		<!-- ============================================================
+		     Selection area (FSD 7). Reporting Year is mandatory; Reporting
+		     Date is optional and, when filled, wins over the year.
+		     ============================================================ -->
+		<subHeader>
+			<Toolbar id="selectionBar" height="3.5rem">
+				<Label text="{i18n>companyCode}" labelFor="inCompanyCode"/>
+				<Input id="inCompanyCode" value="{ui>/companyCode}" width="6rem" maxLength="4"/>
+
+				<Label text="{i18n>reportingYear}" labelFor="inYear"/>
+				<Input id="inYear" value="{ui>/reportingYear}" width="6rem" maxLength="4" type="Number"/>
+
+				<Label text="{i18n>reportingDate}" labelFor="dpDate"/>
+				<DatePicker id="dpDate" value="{ui>/reportingDate}" valueFormat="yyyy-MM-dd"
+					displayFormat="dd.MM.yyyy" width="10rem"/>
+
+				<Label text="{i18n>view}" labelFor="selView"/>
+				<Select id="selView" selectedKey="{ui>/viewMode}" width="9rem">
+					<core:Item key="D" text="{i18n>viewDetailed}"/>
+					<core:Item key="S" text="{i18n>viewSummary}"/>
+				</Select>
+
+				<ToolbarSpacer/>
+
+				<Button id="btnGo" text="{i18n>go}" type="Emphasized" press=".onGo"/>
+				<Button id="btnExport" text="{i18n>exportExcel}" icon="sap-icon://excel-attachment"
+					press=".onExport" enabled="{ui>/hasData}"/>
+			</Toolbar>
+		</subHeader>
+
+		<content>
+			<!-- ============================================================
+			     sap.ui.table.Table, not sap.m.Table: this needs a frozen
+			     description column (fixedColumnCount) and virtual scrolling
+			     over 15 columns.
+
+			     No column is sortable and reordering is off ON PURPOSE. The
+			     row sequence IS the report - sorting any column would put
+			     subtotals above their own detail rows.
+			     ============================================================ -->
+			<t:Table
+				id="pnlTable"
+				selectionMode="None"
+				visibleRowCountMode="Auto"
+				minAutoRowCount="10"
+				fixedColumnCount="1"
+				enableColumnReordering="false"
+				enableColumnFreeze="false"
+				enableCellFilter="false"
+				enableBusyIndicator="true"
+				rows="{rows>/}"
+				rowsUpdated=".onRowsUpdated"
+				class="pnlTable">
+
+				<t:extension>
+					<OverflowToolbar>
+						<Title text="{= ${ui>/companyName} ? ${ui>/companyName} : ${i18n>tableTitle} }" level="H2"/>
+						<ToolbarSpacer/>
+						<Text id="txtStatus" text="{ui>/status}"/>
+					</OverflowToolbar>
+				</t:extension>
+
+				<t:columns>
+
+					<!-- Frozen first column: number + description, indented by level -->
+					<t:Column width="24rem" hAlign="Begin" autoResizable="true">
+						<Label text="{i18n>colDescription}"/>
+						<t:template>
+							<Text text="{= ${rows>DisplayNo} ? ${rows>DisplayNo} + '  ' + ${rows>Description} : ${rows>Description} }"
+								wrapping="false" class="pnlDesc">
+								<customData>
+									<core:CustomData key="pnllevel" value="{rows>NodeLevel}" writeToDom="true"/>
+									<!-- Insurance: if the row-level styling in the controller ever
+									     stops working after a UI5 upgrade, the description column
+									     still comes out bold on total rows. -->
+									<core:CustomData key="pnlrow" value="{rows>RowType}" writeToDom="true"/>
+								</customData>
+							</Text>
+						</t:template>
+					</t:Column>
+
+					<t:Column width="9rem" hAlign="Begin">
+						<Label text="{i18n>colGLAccount}"/>
+						<t:template>
+							<Text text="{rows>GLAccount}" wrapping="false"/>
+						</t:template>
+					</t:Column>
+
+					<t:Column width="16rem" hAlign="Begin">
+						<Label text="{i18n>colGLAccountName}"/>
+						<t:template>
+							<Text text="{rows>GLAccountLongName}" wrapping="false"/>
+						</t:template>
+					</t:Column>
+
+					<t:Column width="9rem" hAlign="End">
+						<Label text="{i18n>colPreviousYear}"/>
+						<t:template>
+							<Text text="{path: 'rows>AmountPreviousYear', targetType: 'any', formatter: '.fmtAmount'}" wrapping="false"/>
+						</t:template>
+					</t:Column>
+
+					<t:Column width="9rem" hAlign="End">
+						<Label text="{i18n>colCurrentYear}"/>
+						<t:template>
+							<Text text="{path: 'rows>AmountCurrentYear', targetType: 'any', formatter: '.fmtAmount'}" wrapping="false"/>
+						</t:template>
+					</t:Column>
+
+					<!-- ========================================================
+					     Twelve period columns. Static month names with no year
+					     in the header (FSD 9) - the fiscal year is shown in the
+					     selection bar and in the Excel title row instead.
+					     Period 001 is July: Searle runs a July-June year.
+					     ======================================================== -->
+					<t:Column width="8rem" hAlign="End">
+						<Label text="July"/>
+						<t:template><Text text="{path: 'rows>AmountPeriod01', targetType: 'any', formatter: '.fmtAmount'}" wrapping="false"/></t:template>
+					</t:Column>
+					<t:Column width="8rem" hAlign="End">
+						<Label text="August"/>
+						<t:template><Text text="{path: 'rows>AmountPeriod02', targetType: 'any', formatter: '.fmtAmount'}" wrapping="false"/></t:template>
+					</t:Column>
+					<t:Column width="8rem" hAlign="End">
+						<Label text="September"/>
+						<t:template><Text text="{path: 'rows>AmountPeriod03', targetType: 'any', formatter: '.fmtAmount'}" wrapping="false"/></t:template>
+					</t:Column>
+					<t:Column width="8rem" hAlign="End">
+						<Label text="October"/>
+						<t:template><Text text="{path: 'rows>AmountPeriod04', targetType: 'any', formatter: '.fmtAmount'}" wrapping="false"/></t:template>
+					</t:Column>
+					<t:Column width="8rem" hAlign="End">
+						<Label text="November"/>
+						<t:template><Text text="{path: 'rows>AmountPeriod05', targetType: 'any', formatter: '.fmtAmount'}" wrapping="false"/></t:template>
+					</t:Column>
+					<t:Column width="8rem" hAlign="End">
+						<Label text="December"/>
+						<t:template><Text text="{path: 'rows>AmountPeriod06', targetType: 'any', formatter: '.fmtAmount'}" wrapping="false"/></t:template>
+					</t:Column>
+					<t:Column width="8rem" hAlign="End">
+						<Label text="January"/>
+						<t:template><Text text="{path: 'rows>AmountPeriod07', targetType: 'any', formatter: '.fmtAmount'}" wrapping="false"/></t:template>
+					</t:Column>
+					<t:Column width="8rem" hAlign="End">
+						<Label text="February"/>
+						<t:template><Text text="{path: 'rows>AmountPeriod08', targetType: 'any', formatter: '.fmtAmount'}" wrapping="false"/></t:template>
+					</t:Column>
+					<t:Column width="8rem" hAlign="End">
+						<Label text="March"/>
+						<t:template><Text text="{path: 'rows>AmountPeriod09', targetType: 'any', formatter: '.fmtAmount'}" wrapping="false"/></t:template>
+					</t:Column>
+					<t:Column width="8rem" hAlign="End">
+						<Label text="April"/>
+						<t:template><Text text="{path: 'rows>AmountPeriod10', targetType: 'any', formatter: '.fmtAmount'}" wrapping="false"/></t:template>
+					</t:Column>
+					<t:Column width="8rem" hAlign="End">
+						<Label text="May"/>
+						<t:template><Text text="{path: 'rows>AmountPeriod11', targetType: 'any', formatter: '.fmtAmount'}" wrapping="false"/></t:template>
+					</t:Column>
+					<t:Column width="8rem" hAlign="End">
+						<Label text="June"/>
+						<t:template><Text text="{path: 'rows>AmountPeriod12', targetType: 'any', formatter: '.fmtAmount'}" wrapping="false"/></t:template>
+					</t:Column>
+
+				</t:columns>
+			</t:Table>
+		</content>
+
+	</Page>
+</mvc:View>

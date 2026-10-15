@@ -1,0 +1,46 @@
+/* ============================================================
+   P&L report styling.
+
+   Bold, borders and fill are driven entirely by RowType / NodeLevel /
+   IsMajorSubtotal coming from the OData service (FSD 9) - the app never
+   decides for itself which row is a total.
+   ============================================================ */
+
+/* ---- indentation of the description column ---- */
+.pnlDesc[data-pnllevel="1"] { padding-left: 1rem; }
+.pnlDesc[data-pnllevel="2"] { padding-left: 2rem; }
+.pnlDesc[data-pnllevel="3"] { padding-left: 3rem; }
+
+/* ---- section headings: the section number and name above its
+        G/L accounts, shaded light grey like the headings in the Excel ---- */
+.pnlTable .sapUiTableRow.pnlHeading td {
+	font-weight: bold;
+	background-color: #f2f2f2;
+}
+
+/* ---- section totals and subtotals ---- */
+.pnlTable .sapUiTableRow.pnlSection td,
+.pnlTable .sapUiTableRow.pnlSubtotal td {
+	font-weight: bold;
+	border-top: 1px solid var(--sapList_BorderColor, #8c8c8c);
+}
+
+/* ---- the three major subtotals: Gross Profit, Profit from
+        Operations, Profit for the Year ---- */
+.pnlTable .sapUiTableRow.pnlMajor td {
+	background-color: var(--sapList_Hover_Background, #ededed);
+}
+
+/* ---- G/L detail rows stay light so the totals stand out ---- */
+.pnlTable .sapUiTableRow.pnlLeaf td {
+	font-weight: normal;
+}
+
+/* Numbers read better in a tabular figure font. */
+.pnlTable .sapUiTableCell {
+	font-variant-numeric: tabular-nums;
+}
+
+.pnlDesc[data-pnlrow="H"],
+.pnlDesc[data-pnlrow="S"],
+.pnlDesc[data-pnlrow="T"] { font-weight: bold; }
