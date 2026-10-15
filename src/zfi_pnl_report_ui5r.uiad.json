@@ -1,0 +1,33 @@
+{
+  "formatVersion": "2",
+  "header": {
+    "description": "P&L report for Searle Pharma",
+    "originalLanguage": "en",
+    "abapLanguageVersion": "cloudDevelopment"
+  },
+  "generalInformation": {
+    "appType": "ui5",
+    "catalogId": "SAP_TC_UI5_REPO_UIAD",
+    "targetMappingTitle": "Profit & Loss Statement"
+  },
+  "ui5AppDetails": {
+    "appId": "zfipnl"
+  },
+  "navigation": {
+    "targetMappingId": "ZFI_PNL_REPORT_UI5R_TM",
+    "semanticObject": "PnLReport",
+    "action": "display",
+    "desktop": true,
+    "tablet": true
+  },
+  "tiles": [
+    {
+      "id": "ZFI_PNL_REPORT_UI5R_AL",
+      "tileType": "static",
+      "isDefault": true,
+      "standard": {
+        "title": "Profit & Loss Statement"
+      }
+    }
+  ]
+}

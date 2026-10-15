@@ -1,0 +1,4 @@
+@EndUserText.label: 'P&L Report Service'
+define service ZFI_PNL_REPORT {
+  expose ZFI_PNL_C_REPORT as PnLReport;
+}
